@@ -27,6 +27,15 @@ const api = new Api({
 const wait = async (ms: number) =>
   new Promise(resolve => setTimeout(resolve, ms));
 
+const telegram_message = async (message: string) => {
+  if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+    const response = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${message}`
+    );
+    const body = await response.json();
+  }
+}
+
 const process = async (authorization: Serialize.Authorization) => {
   let liquidations: Liquidation[] = [];
 
@@ -38,6 +47,7 @@ const process = async (authorization: Serialize.Authorization) => {
   } catch (e) {
     console.error("Error Performing Liquidation");
     console.error(e);
+    await telegram_message(e.message ? e.message : 'Error Finding Liquidation');
   }
 
   for (const liquidation of liquidations) {
@@ -54,18 +64,14 @@ const process = async (authorization: Serialize.Authorization) => {
       )})`;
       console.log(liquidationInfo, txResult.transaction_id);
 
-      if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-        const response = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${liquidationInfo}`
-        );
-        const body = await response.json();
-      }
+      await telegram_message(liquidationInfo);
 
       // const result = await sendTransaction(api)(actions);
       // return result;
     } catch (e) {
       console.error("Error Performing Liquidation");
       console.error(e);
+      await telegram_message(e.message ? e.message : 'Error Performing Liquidation');
     }
   }
 };
