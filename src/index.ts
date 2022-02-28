@@ -11,12 +11,11 @@ import {
   BOTS_ACCOUNTS,
   BOTS_CONFIG,
   ENDPOINTS,
-  PRIVATE_KEYS,
-  TELEGRAM_BOT_TOKEN,
-  TELEGRAM_CHAT_ID
+  PRIVATE_KEYS
 } from "./constants";
 import { findLiquidations, performLiquidation } from "./liquidation";
 import { fetchAllBorrowers } from "./tables";
+import { telegram_message } from "./utils";
 
 const rpc = new JsonRpc(ENDPOINTS, { fetch: fetch });
 const api = new Api({
@@ -26,14 +25,6 @@ const api = new Api({
 
 const wait = async (ms: number) =>
   new Promise(resolve => setTimeout(resolve, ms));
-
-const telegram_message = async (message: string) => {
-  if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-    await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${message}`
-    );
-  }
-};
 
 const process = async (authorization: Serialize.Authorization) => {
   let liquidations: Liquidation[] = [];
