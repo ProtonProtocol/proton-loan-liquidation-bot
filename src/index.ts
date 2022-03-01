@@ -69,7 +69,7 @@ const process = async (authorization: Serialize.Authorization) => {
 };
 
 const processor = async (authorization: Serialize.Authorization) => {
-  process(authorization);
+  await process(authorization);
   await wait(BOTS_CONFIG.waitTime);
   processor(authorization);
 };
