@@ -52,7 +52,10 @@ export const findLiquidations = (api: Api) => async (
         // enough balance for this
         const [debtSymbol, debtContract] = debtExtSymbol.split(`@`);
         const debtAsset = decomposeAsset(`${debtAmount} ${debtSymbol}`);
-
+        if (debtAsset.amount.isZero()) {
+          //console.log(`Skipping ${user} because debt amount is zero`);
+          continue;
+        }
         liquidations.push({
           user,
           debtExtAsset: {
@@ -131,7 +134,7 @@ export const performLiquidation = (api: Api) => async (
 ) => {
   // adjust the max debtExtAsset quantity because it's right at the threshold
   const adjustedAsset = {
-    amount: debtExtAsset.amount.times(99).div(100),
+    amount: debtExtAsset.amount,
     symbol: debtExtAsset.extSymbol.sym
   };
 
